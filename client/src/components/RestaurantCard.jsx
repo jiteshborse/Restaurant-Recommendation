@@ -13,16 +13,19 @@ const RestaurantCard = ({ restaurant }) => {
     const [imageError, setImageError] = useState(false);
 
     const {
-        _id,
+        id,
         name,
         location,
-        cuisines,
+        cuisine,
         rating,
-        imageUrl,
+        image,
         priceRange,
         description,
         phone
     } = restaurant;
+
+    // Convert single cuisine to array for compatibility
+    const cuisines = cuisine ? [cuisine] : [];
 
     const handleImageError = () => {
         setImageError(true);
@@ -56,7 +59,7 @@ const RestaurantCard = ({ restaurant }) => {
             <div className="relative aspect-video overflow-hidden">
                 {!imageError ? (
                     <img
-                        src={imageUrl}
+                        src={image}
                         alt={`${name} restaurant`}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                         loading="lazy"
@@ -95,7 +98,7 @@ const RestaurantCard = ({ restaurant }) => {
                 {/* Header */}
                 <div className="mb-3">
                     <Link
-                        to={`/restaurant/${_id}`}
+                        to={`/restaurant/${id}`}
                         className="block hover:text-blue-600 transition-colors"
                     >
                         <h3 className="text-lg font-bold text-gray-900 mb-1 line-clamp-1">
@@ -152,7 +155,7 @@ const RestaurantCard = ({ restaurant }) => {
                     </div>
 
                     <Link
-                        to={`/restaurant/${_id}`}
+                        to={`/restaurant/${id}`}
                         className="inline-flex items-center px-3 py-1.5 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1"
                     >
                         View Details

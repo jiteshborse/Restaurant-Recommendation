@@ -6,24 +6,12 @@ import RestaurantList from '../components/RestaurantList';
 import Pagination from '../components/Pagination';
 
 const Home = () => {
-    const { loadRestaurants, loadFilterOptions } = useRestaurants();
+    const { loadRestaurants } = useRestaurants();
 
-    // Load initial data
-    useEffect(() => {
-        const initializeData = async () => {
-            await Promise.all([
-                loadFilterOptions(),
-                loadRestaurants()
-            ]);
-        };
-
-        initializeData();
-    }, [loadFilterOptions, loadRestaurants]);
-
-    // Reload restaurants when filters or pagination change
+    // Load initial data on mount
     useEffect(() => {
         loadRestaurants();
-    }, [loadRestaurants]);
+    }, []);
 
     return (
         <div className="space-y-6">

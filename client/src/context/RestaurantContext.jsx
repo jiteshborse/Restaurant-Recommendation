@@ -208,7 +208,7 @@ export const RestaurantProvider = ({ children }) => {
                 payload: error.error || { message: 'Failed to load restaurants' }
             });
         }
-    }, [state.filters, state.pagination.currentPage, state.pagination.limit, state.sort]);
+    }, []);
 
     // Load single restaurant by ID
     const loadRestaurant = useCallback(async (id) => {
