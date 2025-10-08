@@ -14,7 +14,7 @@ export const generateStarRating = (rating) => {
   const stars = [];
   const fullStars = Math.floor(rating);
   const hasHalfStar = rating % 1 >= 0.5;
-  
+
   for (let i = 0; i < 5; i++) {
     if (i < fullStars) {
       stars.push('full');
@@ -24,22 +24,22 @@ export const generateStarRating = (rating) => {
       stars.push('empty');
     }
   }
-  
+
   return stars;
 };
 
 // Format phone number
 export const formatPhoneNumber = (phone) => {
   if (!phone) return '';
-  
+
   // Remove all non-digits
   const digits = phone.replace(/\D/g, '');
-  
+
   // Format as (XXX) XXX-XXXX
   if (digits.length === 10) {
     return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`;
   }
-  
+
   return phone;
 };
 
@@ -61,15 +61,15 @@ export const generateCacheKey = (filters, pagination, sort) => {
     sort: sort?.field || 'rating',
     sortOrder: sort?.order || 'desc'
   };
-  
+
   // Remove null/undefined values
   Object.keys(key).forEach(k => {
-    if (key[k] == null || key[k] === '' || 
-       (Array.isArray(key[k]) && key[k].length === 0)) {
+    if (key[k] == null || key[k] === '' ||
+      (Array.isArray(key[k]) && key[k].length === 0)) {
       delete key[k];
     }
   });
-  
+
   return JSON.stringify(key);
 };
 
@@ -97,7 +97,7 @@ export const buildQueryString = (params) => {
       }
       return acc;
     }, {});
-    
+
   return new URLSearchParams(filteredParams).toString();
 };
 
