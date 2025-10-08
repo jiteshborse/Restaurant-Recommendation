@@ -1,9 +1,7 @@
 import React, { createContext, useReducer, useCallback } from 'react';
 import { restaurantService } from '../services/api';
 
-// Initial state
 const initialState = {
-    // Data
     restaurants: [],
     currentRestaurant: null,
     filterOptions: {
@@ -11,16 +9,12 @@ const initialState = {
         cuisines: [],
         priceRanges: []
     },
-
-    // Filters
     filters: {
         location: '',
         cuisines: [],
         minRating: null,
         search: ''
     },
-
-    // Pagination
     pagination: {
         currentPage: 1,
         totalPages: 0,
@@ -29,19 +23,14 @@ const initialState = {
         hasNext: false,
         hasPrev: false
     },
-
-    // UI State
     loading: false,
     error: null,
-
-    // Sort
     sort: {
         field: 'rating',
         order: 'desc'
     }
 };
 
-// Action types
 const ACTIONS = {
     SET_LOADING: 'SET_LOADING',
     SET_ERROR: 'SET_ERROR',
@@ -56,7 +45,6 @@ const ACTIONS = {
     SET_SORT: 'SET_SORT'
 };
 
-// Reducer function
 const restaurantReducer = (state, action) => {
     switch (action.type) {
         case ACTIONS.SET_LOADING:
@@ -109,7 +97,7 @@ const restaurantReducer = (state, action) => {
                 },
                 pagination: {
                     ...state.pagination,
-                    currentPage: 1 // Reset to first page when filter changes
+                    currentPage: 1
                 }
             };
 
@@ -154,7 +142,7 @@ const restaurantReducer = (state, action) => {
                 sort: action.payload,
                 pagination: {
                     ...state.pagination,
-                    currentPage: 1 // Reset to first page when sort changes
+                    currentPage: 1
                 }
             };
 
@@ -163,14 +151,11 @@ const restaurantReducer = (state, action) => {
     }
 };
 
-// Create context
 export const RestaurantContext = createContext();
 
-// Provider component
 export const RestaurantProvider = ({ children }) => {
     const [state, dispatch] = useReducer(restaurantReducer, initialState);
 
-    // Load restaurants with current filters and pagination
     const loadRestaurants = useCallback(async () => {
         try {
             dispatch({ type: ACTIONS.SET_LOADING, payload: true });
@@ -184,7 +169,6 @@ export const RestaurantProvider = ({ children }) => {
                 sortOrder: state.sort.order
             };
 
-            // Clean up empty parameters
             Object.keys(params).forEach(key => {
                 if (params[key] === '' || params[key] === null ||
                     (Array.isArray(params[key]) && params[key].length === 0)) {
@@ -192,7 +176,6 @@ export const RestaurantProvider = ({ children }) => {
                 }
             });
 
-            // Convert cuisines array to comma-separated string
             if (params.cuisines && Array.isArray(params.cuisines)) {
                 params.cuisines = params.cuisines.join(',');
             }
@@ -210,7 +193,6 @@ export const RestaurantProvider = ({ children }) => {
         }
     }, [state.filters, state.pagination.currentPage, state.pagination.limit, state.sort]);
 
-    // Load single restaurant by ID
     const loadRestaurant = useCallback(async (id) => {
         try {
             dispatch({ type: ACTIONS.SET_LOADING, payload: true });
@@ -227,7 +209,6 @@ export const RestaurantProvider = ({ children }) => {
         }
     }, []);
 
-    // Load filter options
     const loadFilterOptions = useCallback(async () => {
         try {
             const response = await restaurantService.getFilterOptions();
@@ -237,7 +218,6 @@ export const RestaurantProvider = ({ children }) => {
         }
     }, []);
 
-    // Filter actions
     const setFilter = useCallback((key, value) => {
         dispatch({
             type: ACTIONS.SET_FILTER,
@@ -253,7 +233,6 @@ export const RestaurantProvider = ({ children }) => {
         dispatch({ type: ACTIONS.CLEAR_ALL_FILTERS });
     }, []);
 
-    // Pagination actions
     const setPage = useCallback((page) => {
         dispatch({
             type: ACTIONS.SET_PAGINATION,
@@ -261,7 +240,6 @@ export const RestaurantProvider = ({ children }) => {
         });
     }, [state.pagination]);
 
-    // Sort actions
     const setSort = useCallback((field, order = 'desc') => {
         dispatch({
             type: ACTIONS.SET_SORT,
@@ -269,7 +247,6 @@ export const RestaurantProvider = ({ children }) => {
         });
     }, []);
 
-    // Computed values
     const hasActiveFilters = Object.values(state.filters).some(value => {
         if (Array.isArray(value)) return value.length > 0;
         return value !== null && value !== '';
@@ -277,16 +254,10 @@ export const RestaurantProvider = ({ children }) => {
 
     const isEmpty = state.restaurants.length === 0 && !state.loading;
 
-    // Context value
     const contextValue = {
-        // State
         ...state,
-
-        // Computed
         hasActiveFilters,
         isEmpty,
-
-        // Actions
         loadRestaurants,
         loadRestaurant,
         loadFilterOptions,

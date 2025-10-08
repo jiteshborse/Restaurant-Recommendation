@@ -28,7 +28,7 @@ const RestaurantCard = ({ restaurant }) => {
         setImageError(true);
     };
 
-    // Generate star rating display
+
     const renderStars = (rating) => {
         const stars = generateStarRating(rating);
 
@@ -52,7 +52,7 @@ const RestaurantCard = ({ restaurant }) => {
 
     return (
         <div className="card p-0 overflow-hidden transform hover:-translate-y-1 transition-all duration-300">
-            {/* Image */}
+
             <div className="relative aspect-video overflow-hidden">
                 {!imageError ? (
                     <img
@@ -73,7 +73,7 @@ const RestaurantCard = ({ restaurant }) => {
                     </div>
                 )}
 
-                {/* Price Range Badge */}
+
                 <div className="absolute top-3 right-3 bg-white bg-opacity-95 backdrop-blur-sm rounded-full px-3 py-1 flex items-center shadow-sm">
                     <CurrencyDollarIcon className="h-4 w-4 text-green-600" />
                     <span className="text-sm font-semibold text-gray-900 ml-1">
@@ -81,7 +81,7 @@ const RestaurantCard = ({ restaurant }) => {
                     </span>
                 </div>
 
-                {/* Rating Badge */}
+
                 <div className="absolute top-3 left-3 bg-white bg-opacity-95 backdrop-blur-sm rounded-full px-2 py-1 flex items-center shadow-sm">
                     <StarIcon className="h-4 w-4 text-yellow-400" />
                     <span className="text-sm font-semibold text-gray-900 ml-1">
@@ -90,9 +90,9 @@ const RestaurantCard = ({ restaurant }) => {
                 </div>
             </div>
 
-            {/* Content */}
+
             <div className="p-5">
-                {/* Header */}
+
                 <div className="mb-3">
                     <Link
                         to={`/restaurant/${_id}`}
@@ -103,14 +103,14 @@ const RestaurantCard = ({ restaurant }) => {
                         </h3>
                     </Link>
 
-                    {/* Location */}
+
                     <div className="flex items-center text-sm text-gray-500">
                         <MapPinIcon className="h-4 w-4 mr-1 flex-shrink-0" />
                         <span className="truncate">{location}</span>
                     </div>
                 </div>
 
-                {/* Rating Stars */}
+
                 <div className="flex items-center space-x-2 mb-3">
                     <div className="flex items-center">
                         {renderStars(rating)}
@@ -120,7 +120,7 @@ const RestaurantCard = ({ restaurant }) => {
                     </span>
                 </div>
 
-                {/* Cuisines */}
+
                 <div className="flex flex-wrap gap-1 mb-3">
                     {cuisines.slice(0, 3).map((cuisine) => (
                         <span
@@ -137,14 +137,14 @@ const RestaurantCard = ({ restaurant }) => {
                     )}
                 </div>
 
-                {/* Description */}
+
                 {description && (
                     <p className="text-sm text-gray-600 line-clamp-2 mb-3">
                         {truncateText(description, 100)}
                     </p>
                 )}
 
-                {/* Footer */}
+
                 <div className="flex items-center justify-between pt-3 border-t border-gray-100">
                     <div className="flex items-center text-sm text-gray-500">
                         <PhoneIcon className="h-4 w-4 mr-1 flex-shrink-0" />

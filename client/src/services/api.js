@@ -1,6 +1,5 @@
 import axios from 'axios';
 
-// Create axios instance with base configuration
 const api = axios.create({
     baseURL: '/api',
     timeout: 10000,
@@ -9,7 +8,6 @@ const api = axios.create({
     },
 });
 
-// Request interceptor
 api.interceptors.request.use(
     (config) => {
         console.log(`Making ${config.method?.toUpperCase()} request to ${config.url}`);
@@ -20,7 +18,6 @@ api.interceptors.request.use(
     }
 );
 
-// Response interceptor
 api.interceptors.response.use(
     (response) => {
         return response;
@@ -28,9 +25,7 @@ api.interceptors.response.use(
     (error) => {
         console.error('API Error:', error);
 
-        // Handle common error cases
         if (error.response) {
-            // Server responded with error status
             const { status, data } = error.response;
 
             if (status === 404) {
@@ -41,7 +36,6 @@ api.interceptors.response.use(
 
             return Promise.reject(data || error);
         } else if (error.request) {
-            // Network error
             console.error('Network error - please check your connection');
             return Promise.reject({ message: 'Network error' });
         }
@@ -50,28 +44,23 @@ api.interceptors.response.use(
     }
 );
 
-// Restaurant API methods
 export const restaurantService = {
-    // Get all restaurants with filters
     getRestaurants: async (params = {}) => {
         const response = await api.get('/restaurants', { params });
         return response.data;
     },
 
-    // Get single restaurant by ID
     getRestaurantById: async (id) => {
         const response = await api.get(`/restaurants/${id}`);
         return response.data;
     },
 
-    // Get filter options
     getFilterOptions: async () => {
         const response = await api.get('/restaurants/filters/options');
         return response.data;
     },
 };
 
-// Health check
 export const healthService = {
     checkHealth: async () => {
         const response = await api.get('/health');
