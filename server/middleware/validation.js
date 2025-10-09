@@ -66,10 +66,9 @@ const restaurantSchema = Joi.object({
         'string.pattern.base': 'Phone format must be: (123) 456-7890'
     }),
 
-    imageUrl: Joi.string().uri().pattern(/\.(jpg|jpeg|png|webp)(\?.*)?$/i).required().messages({
+    imageUrl: Joi.string().uri().required().messages({
         'string.empty': 'Image URL is required',
-        'string.uri': 'Please provide a valid URL',
-        'string.pattern.base': 'Image must be a valid URL ending in jpg, jpeg, png, or webp'
+        'string.uri': 'Please provide a valid URL'
     }),
 
     priceRange: Joi.string().valid('$', '$$', '$$$', '$$$$').required().messages({

@@ -80,9 +80,9 @@ const restaurantSchema = new mongoose.Schema({
         trim: true,
         validate: {
             validator: function (v) {
-                return /^https?:\/\/.+\.(jpg|jpeg|png|webp)(\?.*)?$/i.test(v);
+                return /^https?:\/\/.+/i.test(v);
             },
-            message: 'Please provide a valid image URL (jpg, jpeg, png, or webp)'
+            message: 'Please provide a valid image URL'
         }
     },
 

@@ -1,229 +1,260 @@
-// client/src/components/FilterContainer.jsx
 import React, { useState, useEffect } from 'react';
-import { ChevronDownIcon, ChevronUpIcon, FunnelIcon, XMarkIcon } from '@heroicons/react/24/outline';
-import { StarIcon } from '@heroicons/react/24/solid';
 import { useRestaurants } from '../hooks/useRestaurants';
+import { useDebounce } from '../hooks/useDebounce';
+import { 
+    MagnifyingGlassIcon, 
+    MapPinIcon, 
+    StarIcon, 
+    CurrencyDollarIcon,
+    FunnelIcon,
+    XMarkIcon,
+    AdjustmentsHorizontalIcon
+} from '@heroicons/react/24/outline';
 
 const FilterContainer = () => {
-    const [isExpanded, setIsExpanded] = useState(true);
     const {
-        filters,
         filterOptions,
-        hasActiveFilters,
+        filters,
         setFilter,
         clearFilter,
         clearAllFilters,
-        loadFilterOptions
+        hasActiveFilters,
+        loadRestaurants
     } = useRestaurants();
 
-    // Load filter options on mount
+    const [searchTerm, setSearchTerm] = useState(filters.search || '');
+    const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
+    const debouncedSearchTerm = useDebounce(searchTerm, 500);
+
     useEffect(() => {
-        loadFilterOptions();
-    }, [loadFilterOptions]);
+        setFilter('search', debouncedSearchTerm);
+    }, [debouncedSearchTerm, setFilter]);
 
-    // Location Dropdown Component
-    const LocationDropdown = () => (
-        <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-                Location
-            </label>
-            <select
-                value={filters.location}
-                onChange={(e) => setFilter('location', e.target.value)}
-                className="input-field"
-            >
-                <option value="">All Locations</option>
-                {filterOptions.locations.map(location => (
-                    <option key={location} value={location}>
-                        {location}
-                    </option>
-                ))}
-            </select>
-        </div>
-    );
-
-    // Cuisine Multi-Select Component
-    const CuisineMultiSelect = () => (
-        <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-                Cuisines
-            </label>
-            <div className="space-y-2 max-h-32 overflow-y-auto border border-gray-300 rounded-lg p-2">
-                {filterOptions.cuisines.map(cuisine => (
-                    <label key={cuisine} className="flex items-center">
-                        <input
-                            type="checkbox"
-                            checked={filters.cuisines.includes(cuisine)}
-                            onChange={(e) => {
-                                const newCuisines = e.target.checked
-                                    ? [...filters.cuisines, cuisine]
-                                    : filters.cuisines.filter(c => c !== cuisine);
-                                setFilter('cuisines', newCuisines);
-                            }}
-                            className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                        />
-                        <span className="ml-2 text-sm text-gray-700">{cuisine}</span>
-                    </label>
-                ))}
-            </div>
-        </div>
-    );
-
-    // Rating Selector Component
-    const RatingSelector = () => {
-        const ratings = [1, 2, 3, 4, 5];
-
-        const renderStars = (rating) => (
-            <div className="flex items-center">
-                {ratings.map((star) => (
-                    <StarIcon
-                        key={star}
-                        className={`h-4 w-4 ${star <= rating ? 'text-yellow-400' : 'text-gray-300'}`}
-                    />
-                ))}
-            </div>
-        );
-
-        return (
-            <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Minimum Rating
-                </label>
-                <div className="space-y-2">
-                    <button
-                        onClick={() => setFilter('minRating', null)}
-                        className={`w-full text-left px-3 py-2 rounded-md text-sm transition-colors ${filters.minRating === null
-                                ? 'bg-blue-100 text-blue-700 ring-2 ring-blue-500'
-                                : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
-                            }`}
-                    >
-                        Any Rating
-                    </button>
-                    {ratings.map(rating => (
-                        <button
-                            key={rating}
-                            onClick={() => setFilter('minRating', rating)}
-                            className={`w-full flex items-center justify-between px-3 py-2 rounded-md text-sm transition-colors ${filters.minRating === rating
-                                    ? 'bg-blue-100 text-blue-700 ring-2 ring-blue-500'
-                                    : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
-                                }`}
-                        >
-                            <div className="flex items-center space-x-2">
-                                {renderStars(rating)}
-                                <span>{rating}+</span>
-                            </div>
-                        </button>
-                    ))}
-                </div>
-            </div>
-        );
+    const handleLocationChange = (location) => {
+        if (filters.location === location) {
+            clearFilter('location');
+        } else {
+            setFilter('location', location);
+        }
     };
 
-    // Active Filters Display
-    const ActiveFilters = () => {
-        if (!hasActiveFilters) return null;
-
-        const activeFilters = [];
-
-        if (filters.location) {
-            activeFilters.push({ key: 'location', label: 'Location', value: filters.location });
-        }
-
-        if (filters.cuisines.length > 0) {
-            activeFilters.push({
-                key: 'cuisines',
-                label: 'Cuisines',
-                value: filters.cuisines.length === 1 ? filters.cuisines[0] : `${filters.cuisines.length} cuisines`
-            });
-        }
-
-        if (filters.minRating) {
-            activeFilters.push({ key: 'minRating', label: 'Min Rating', value: `${filters.minRating}+ stars` });
-        }
-
-        if (filters.search) {
-            activeFilters.push({ key: 'search', label: 'Search', value: `"${filters.search}"` });
-        }
-
-        return (
-            <div className="mb-4">
-                <div className="flex items-center justify-between mb-2">
-                    <h3 className="text-sm font-medium text-gray-700">Active Filters</h3>
-                    <button
-                        onClick={clearAllFilters}
-                        className="text-xs text-blue-600 hover:text-blue-800 font-medium"
-                    >
-                        Clear all
-                    </button>
-                </div>
-
-                <div className="flex flex-wrap gap-2">
-                    {activeFilters.map((filter) => (
-                        <div
-                            key={filter.key}
-                            className="inline-flex items-center bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-1.5 rounded-full"
-                        >
-                            <span className="mr-1 font-medium">{filter.label}:</span>
-                            <span>{filter.value}</span>
-                            <button
-                                onClick={() => clearFilter(filter.key)}
-                                className="ml-1.5 inline-flex items-center justify-center w-4 h-4 rounded-full hover:bg-blue-200 transition-colors"
-                            >
-                                <XMarkIcon className="h-3 w-3" />
-                            </button>
-                        </div>
-                    ))}
-                </div>
-            </div>
-        );
+    const handleCuisineToggle = (cuisine) => {
+        const currentCuisines = filters.cuisines || [];
+        const newCuisines = currentCuisines.includes(cuisine)
+            ? currentCuisines.filter(c => c !== cuisine)
+            : [...currentCuisines, cuisine];
+        setFilter('cuisines', newCuisines);
     };
 
-    const activeFilterCount = [filters.location, filters.search].filter(Boolean).length +
-        (filters.cuisines.length > 0 ? 1 : 0) +
-        (filters.minRating ? 1 : 0);
+    const handleRatingChange = (rating) => {
+        if (filters.minRating === rating) {
+            clearFilter('minRating');
+        } else {
+            setFilter('minRating', rating);
+        }
+    };
+
+    const priceRanges = [
+        { value: '$', label: 'Budget ($10-25)', icon: '💰' },
+        { value: '$$', label: 'Moderate ($25-50)', icon: '💳' },
+        { value: '$$$', label: 'Expensive ($50-100)', icon: '💎' },
+        { value: '$$$$', label: 'Luxury ($100+)', icon: '👑' }
+    ];
+
+    const ratings = [
+        { value: 4.5, label: '4.5+ Stars', icon: '⭐' },
+        { value: 4.0, label: '4.0+ Stars', icon: '⭐' },
+        { value: 3.5, label: '3.5+ Stars', icon: '⭐' },
+        { value: 3.0, label: '3.0+ Stars', icon: '⭐' }
+    ];
 
     return (
-        <div className="bg-white shadow-sm border border-gray-200 rounded-lg mb-6">
-            {/* Header */}
-            <div className="px-6 py-4 border-b border-gray-200">
-                <button
-                    onClick={() => setIsExpanded(!isExpanded)}
-                    className="flex items-center justify-between w-full text-left"
-                >
+        <div className="space-y-6">
+            {/* Search Bar */}
+            <div className="card p-6">
+                <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-6 flex items-center pointer-events-none">
+                        <MagnifyingGlassIcon className="h-6 w-6 text-gray-400" />
+                    </div>
+                    <input
+                        type="text"
+                        placeholder="Search restaurants by name, cuisine, or location..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="search-input pl-14 pr-6"
+                    />
+                    {searchTerm && (
+                        <button
+                            onClick={() => setSearchTerm('')}
+                            className="absolute inset-y-0 right-0 pr-6 flex items-center"
+                        >
+                            <XMarkIcon className="h-5 w-5 text-gray-400 hover:text-gray-600 transition-colors" />
+                        </button>
+                    )}
+                </div>
+            </div>
+
+            {/* Filter Controls */}
+            <div className="card p-6">
+                <div className="flex items-center justify-between mb-6">
                     <div className="flex items-center space-x-3">
-                        <FunnelIcon className="h-5 w-5 text-gray-600" />
-                        <h2 className="text-lg font-semibold text-gray-900">
-                            Filters
-                        </h2>
-                        {activeFilterCount > 0 && (
-                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                {activeFilterCount}
+                        <div className="p-2 bg-gradient-to-r from-purple-600 to-blue-600 rounded-xl">
+                            <FunnelIcon className="h-5 w-5 text-white" />
+                        </div>
+                        <h3 className="text-xl font-bold text-gray-900">Filters</h3>
+                        {hasActiveFilters && (
+                            <span className="px-3 py-1 bg-gradient-to-r from-purple-100 to-blue-100 text-purple-800 rounded-full text-sm font-semibold">
+                                Active
                             </span>
                         )}
                     </div>
-
-                    {isExpanded ? (
-                        <ChevronUpIcon className="h-5 w-5 text-gray-400" />
-                    ) : (
-                        <ChevronDownIcon className="h-5 w-5 text-gray-400" />
-                    )}
-                </button>
-            </div>
-
-            {/* Expandable content */}
-            {isExpanded && (
-                <div className="p-6">
-                    {/* Active Filters */}
-                    <ActiveFilters />
-
-                    {/* Filter Grid */}
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <LocationDropdown />
-                        <CuisineMultiSelect />
-                        <RatingSelector />
+                    <div className="flex items-center space-x-3">
+                        <button
+                            onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
+                            className="flex items-center space-x-2 px-4 py-2 bg-white/80 hover:bg-white/90 rounded-xl transition-all duration-300 border border-white/50"
+                        >
+                            <AdjustmentsHorizontalIcon className="h-4 w-4" />
+                            <span className="text-sm font-medium">
+                                {showAdvancedFilters ? 'Simple' : 'Advanced'}
+                            </span>
+                        </button>
+                        {hasActiveFilters && (
+                            <button
+                                onClick={clearAllFilters}
+                                className="flex items-center space-x-2 px-4 py-2 bg-red-100 hover:bg-red-200 text-red-700 rounded-xl transition-all duration-300"
+                            >
+                                <XMarkIcon className="h-4 w-4" />
+                                <span className="text-sm font-medium">Clear All</span>
+                            </button>
+                        )}
                     </div>
                 </div>
-            )}
+
+                {/* Location Filter */}
+                <div className="mb-6">
+                    <div className="flex items-center space-x-2 mb-3">
+                        <MapPinIcon className="h-5 w-5 text-purple-600" />
+                        <label className="text-sm font-semibold text-gray-700">Location</label>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                        {filterOptions.locations?.map((location) => (
+                            <button
+                                key={location}
+                                onClick={() => handleLocationChange(location)}
+                                className={`filter-chip ${
+                                    filters.location === location
+                                        ? 'filter-chip-active'
+                                        : 'filter-chip-inactive'
+                                }`}
+                            >
+                                📍 {location}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+
+                {/* Cuisine Filter */}
+                <div className="mb-6">
+                    <div className="flex items-center space-x-2 mb-3">
+                        <span className="text-lg">🍽️</span>
+                        <label className="text-sm font-semibold text-gray-700">Cuisine</label>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                        {filterOptions.cuisines?.slice(0, showAdvancedFilters ? undefined : 8).map((cuisine) => (
+                            <button
+                                key={cuisine}
+                                onClick={() => handleCuisineToggle(cuisine)}
+                                className={`filter-chip ${
+                                    filters.cuisines?.includes(cuisine)
+                                        ? 'filter-chip-active'
+                                        : 'filter-chip-inactive'
+                                }`}
+                            >
+                                {cuisine}
+                            </button>
+                        ))}
+                        {!showAdvancedFilters && filterOptions.cuisines?.length > 8 && (
+                            <button
+                                onClick={() => setShowAdvancedFilters(true)}
+                                className="filter-chip filter-chip-inactive text-purple-600 border-purple-300"
+                            >
+                                +{filterOptions.cuisines.length - 8} more
+                            </button>
+                        )}
+                    </div>
+                </div>
+
+                {/* Rating Filter */}
+                <div className="mb-6">
+                    <div className="flex items-center space-x-2 mb-3">
+                        <StarIcon className="h-5 w-5 text-yellow-500" />
+                        <label className="text-sm font-semibold text-gray-700">Minimum Rating</label>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                        {ratings.map((rating) => (
+                            <button
+                                key={rating.value}
+                                onClick={() => handleRatingChange(rating.value)}
+                                className={`filter-chip ${
+                                    filters.minRating === rating.value
+                                        ? 'filter-chip-active'
+                                        : 'filter-chip-inactive'
+                                }`}
+                            >
+                                {rating.icon} {rating.label}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+
+                {/* Price Range Filter (Advanced) */}
+                {showAdvancedFilters && (
+                    <div className="mb-6">
+                        <div className="flex items-center space-x-2 mb-3">
+                            <CurrencyDollarIcon className="h-5 w-5 text-green-600" />
+                            <label className="text-sm font-semibold text-gray-700">Price Range</label>
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                            {priceRanges.map((price) => (
+                                <button
+                                    key={price.value}
+                                    onClick={() => {
+                                        if (filters.priceRange === price.value) {
+                                            clearFilter('priceRange');
+                                        } else {
+                                            setFilter('priceRange', price.value);
+                                        }
+                                    }}
+                                    className={`filter-chip ${
+                                        filters.priceRange === price.value
+                                            ? 'filter-chip-active'
+                                            : 'filter-chip-inactive'
+                                    }`}
+                                >
+                                    {price.icon} {price.label}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
+                {/* Active Filters Summary */}
+                {hasActiveFilters && (
+                    <div className="pt-4 border-t border-gray-200">
+                        <div className="flex items-center justify-between">
+                            <span className="text-sm font-medium text-gray-600">
+                                {Object.values(filters).filter(v => v && (Array.isArray(v) ? v.length > 0 : true)).length} filters active
+                            </span>
+                            <button
+                                onClick={loadRestaurants}
+                                className="btn-primary text-sm py-2 px-4"
+                            >
+                                Apply Filters
+                            </button>
+                        </div>
+                    </div>
+                )}
+            </div>
         </div>
     );
 };
